@@ -1,5 +1,5 @@
-#ifndef __PORT_H
-#define __PORT_H
+#ifndef PORT_H
+#define PORT_H
 
 #include "types.h"
 
@@ -18,7 +18,6 @@ protected:
 class Port8bit: public Port
 {
 public:
-    uint16_t port_number;
     Port8bit(uint16_t port_number);
     virtual void write(uint8_t data);
     virtual uint8_t read();
@@ -27,7 +26,6 @@ public:
 class Port8bitSlow: public Port8bit
 {
 public:
-    uint16_t port_number;
     Port8bitSlow(uint16_t port_number);
     virtual void write(uint8_t data) override;
 };
@@ -35,7 +33,6 @@ public:
 class Port16bit: public Port
 {
 public:
-    uint16_t port_number;
     Port16bit(uint16_t port_number);
     virtual void write(uint16_t data);
     virtual uint16_t read();
@@ -44,7 +41,6 @@ public:
 class Port32bit: public Port
 {
 public:
-    uint16_t port_number;
     Port32bit(uint16_t port_number);
     virtual void write(uint32_t data);
     virtual uint32_t read();

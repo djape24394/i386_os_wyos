@@ -1,5 +1,7 @@
 #include "GlobalDescriptorTable.h"
 
+void printf(char *str);
+
 GlobalDescriptorTable::GlobalDescriptorTable()
     : nullSegmentSelector(0U, 0U, 0U),
       unusedSegmentSelector(0u, 0u, 0u),
@@ -17,6 +19,7 @@ GlobalDescriptorTable::GlobalDescriptorTable()
     asm volatile("lgdt (%0)"
                  :
                  : "p"(((uint8_t *)i) + 2));
+    printf("Loaded Global Descriptor Table\n");
 }
 
 GlobalDescriptorTable::~GlobalDescriptorTable() = default;

@@ -1,5 +1,5 @@
-#ifndef __GDT_H
-#define __GDT_H
+#ifndef GDT_H
+#define GDT_H
 
 #include "types.h"
 
@@ -7,6 +7,7 @@
 Global descriptor table 
 https://en.wikipedia.org/wiki/Global_Descriptor_Table
 https://wiki.osdev.org/GDT_Tutorial
+https://wiki.osdev.org/Global_Descriptor_Table
 */
 class GlobalDescriptorTable
 {

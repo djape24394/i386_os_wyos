@@ -21,9 +21,13 @@ uint8_t Port8bit::read()
     return result;
 }
 
+Port8bitSlow::Port8bitSlow(uint16_t port_number) : Port8bit(port_number){}
+
 void Port8bitSlow::write(uint8_t data)
 {
-    asm volatile("outb %0, %1\njmp 1f\n1: jmp 1f\n1:" : : "a" (data), "Nd" (port_number));
+    asm volatile("outb %0, %1\njmp 1f\n1: jmp 1f\n1:"
+                 :
+                 : "a"(data), "Nd"(port_number));
 }
 
 Port16bit::Port16bit(uint16_t port_number) : Port(port_number) {}
