@@ -5,9 +5,26 @@
 #include "Port.h"
 #include "GlobalDescriptorTable.h"
 
+class InterruptManager;
+
+// TODO: separate this later to another file
+class InterruptHandler
+{
+protected:
+    uint8_t interrupt_number;
+    InterruptManager* interrupt_manager;
+    InterruptHandler(uint8_t interrupt_number, InterruptManager* interrupt_manager);
+    // can not make it virtual, but for now it will work, as derived handlers only use base class destructor
+    // check https://stackoverflow.com/questions/7015285/undefined-reference-to-operator-deletevoid
+    ~InterruptHandler();
+public:    
+    virtual uint32_t handleInterrupt(uint32_t esp);
+};
+
 //http://www.lowlevel.eu/wiki/T%C3%BDndur
 class InterruptManager
 {
+friend class InterruptHandler;
 protected:
     static InterruptManager* activeInterruptManager;
     struct GateDescriptor
@@ -24,6 +41,7 @@ protected:
         uint32_t base;
     }__attribute__((packed));
     static GateDescriptor interruptDescriptorTable[256];
+    InterruptHandler* interruptHandlers[256];
     static void setInterruptDescriptorTableEntry(
         uint8_t interruptNumber,
         uint16_t codeSegmentSelectorOffset,

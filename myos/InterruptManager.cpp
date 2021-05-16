@@ -18,10 +18,16 @@ uint32_t InterruptManager::handleInterrupt(uint8_t interrupt_number, uint32_t es
 
 uint32_t InterruptManager::handleInterruptMember(uint8_t interrupt_number, uint32_t esp)
 {
-    // print "INTERRUPT!!!" only if it is not the timer interrupt
-    if(interrupt_number != 0x20)
+    if(interruptHandlers[interrupt_number] != nullptr)
     {
-        printf("INTERRUPT!!!");
+        esp = interruptHandlers[interrupt_number]->handleInterrupt(esp);
+    }else if(interrupt_number != 0x20)
+    {
+        char* foo = "UNHANDLED INTERRUPT 0x00";
+        char* hex = "0123456789ABCDEF";
+        foo[22] = hex[(interrupt_number >> 4) & 0x0F];
+        foo[23] = hex[interrupt_number & 0x0F];
+        printf(foo);
     }
     
     // if this was hardware interrupt, send the response to pics
@@ -49,6 +55,7 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
     for (uint16_t i = 0; i < 256; i++)
     {
         setInterruptDescriptorTableEntry(i, codeSegment, &ignoreInterruptRequest, 0, IDT_INTERRUPT_GATE); // descriptorPrivilegeLevel=0 kernel states
+        interruptHandlers[i] = nullptr;
     }
 
     setInterruptDescriptorTableEntry(0x20, codeSegment, &handleInterruptRequest0x00, 0, IDT_INTERRUPT_GATE);
@@ -117,4 +124,24 @@ void InterruptManager::deactivate()
         // stop interrupts
         asm("cli");
     }
+}
+
+InterruptHandler::InterruptHandler(uint8_t interrupt_number, InterruptManager* interrupt_manager)
+: interrupt_number(interrupt_number),
+  interrupt_manager(interrupt_manager)
+{
+    interrupt_manager->interruptHandlers[interrupt_number] = this;
+}
+
+InterruptHandler::~InterruptHandler()
+{
+    if(interrupt_manager->interruptHandlers[interrupt_number] == this)
+    {
+        interrupt_manager->interruptHandlers[interrupt_number] = nullptr;
+    }
+}
+
+uint32_t InterruptHandler::handleInterrupt(uint32_t esp)
+{
+    return esp;
 }
