@@ -9,6 +9,7 @@
 class InterruptManager
 {
 protected:
+    static InterruptManager* activeInterruptManager;
     struct GateDescriptor
     {
         uint16_t handlerAddressLowBits;
@@ -36,13 +37,19 @@ protected:
 public:
     InterruptManager(GlobalDescriptorTable* gdt);
     ~InterruptManager() = default;
+    
     static uint32_t handleInterrupt(uint8_t interrupt_number, uint32_t esp);
+    // to be able to use members picMasterCommand, we need to use objects for this
+    // that is why we make static InterruptManager* activeManager and just call handleInterruptMember 
+    // from handleInterrupt
+    uint32_t handleInterruptMember(uint8_t interrupt_number, uint32_t esp);
     
     static void ignoreInterruptRequest();
     static void handleInterruptRequest0x00();
     static void handleInterruptRequest0x01();
 
     void activate();
+    void deactivate();
 };
 
 #endif // INTERRUPTMANAGER_H

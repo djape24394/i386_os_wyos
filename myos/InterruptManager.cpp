@@ -4,18 +4,44 @@ void printf(char *str);
 
 InterruptManager::GateDescriptor InterruptManager::interruptDescriptorTable[256];
 
+InterruptManager *InterruptManager::activeInterruptManager{nullptr};
+
 uint32_t InterruptManager::handleInterrupt(uint8_t interrupt_number, uint32_t esp)
 {
-    printf("INTERRUPT!!!\n");
-    // return current stack pointer
+    if(activeInterruptManager != nullptr)
+    {    
+        return activeInterruptManager->handleInterruptMember(interrupt_number, esp);
+    }
+    // otherwise just return current stack pointer
+    return esp;
+}
+
+uint32_t InterruptManager::handleInterruptMember(uint8_t interrupt_number, uint32_t esp)
+{
+    // print "INTERRUPT!!!" only if it is not the timer interrupt
+    if(interrupt_number != 0x20)
+    {
+        printf("INTERRUPT!!!");
+    }
+    
+    // if this was hardware interrupt, send the response to pics
+    if(interrupt_number >= 0x20 && interrupt_number < 0x30)
+    {
+        // always send respond to master pic, and to slave only if interrupt came from slave(>=0x28)
+        picMasterCommand.write(0x20);
+        if(interrupt_number >= 0x28)
+        {
+            picSlaveCommand.write(0x20);
+        }
+    }
     return esp;
 }
 
 InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
-: picMasterCommand(0x20),
-  picMasterData(0x21),
-  picSlaveCommand(0xA0),
-  picSlaveData(0xA1)
+    : picMasterCommand(0x20),
+      picMasterData(0x21),
+      picSlaveCommand(0xA0),
+      picSlaveData(0xA1)
 {
     uint16_t codeSegment = gdt->get_code_segment_address_offset();
     const uint8_t IDT_INTERRUPT_GATE = 0xE;
@@ -28,12 +54,12 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
     setInterruptDescriptorTableEntry(0x20, codeSegment, &handleInterruptRequest0x00, 0, IDT_INTERRUPT_GATE);
     setInterruptDescriptorTableEntry(0x21, codeSegment, &handleInterruptRequest0x01, 0, IDT_INTERRUPT_GATE);
 
-    // Before loading Interrupt Descriptor Table, we communicate with master and slave rogrammable interrupt controller 
+    // Before loading Interrupt Descriptor Table, we communicate with master and slave rogrammable interrupt controller
     picMasterCommand.write(0x11);
     picSlaveCommand.write(0x11);
-    
+
     // when pressing keyboard, we get interrupt 1, but the same number is used internally for exceptions also
-    // we tell the master pic that for every interrupt, just add 0x20(0x20...0x27) to it(same for slave, add 0x28) 
+    // we tell the master pic that for every interrupt, just add 0x20(0x20...0x27) to it(same for slave, add 0x28)
     picMasterData.write(0x20);
     picSlaveData.write(0x28);
 
@@ -43,7 +69,7 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
 
     picMasterData.write(0x01);
     picSlaveData.write(0x01);
-    
+
     picMasterData.write(0x00);
     picSlaveData.write(0x00);
 
@@ -74,6 +100,21 @@ void InterruptManager::setInterruptDescriptorTableEntry(
 
 void InterruptManager::activate()
 {
+    if (activeInterruptManager != nullptr)
+    {
+        activeInterruptManager->deactivate();
+    }
+    activeInterruptManager = this;
     // start interrupts
-    asm("sti"); 
+    asm("sti");
+}
+
+void InterruptManager::deactivate()
+{
+    if (activeInterruptManager == this)
+    {
+        activeInterruptManager = nullptr;
+        // stop interrupts
+        asm("cli");
+    }
 }
