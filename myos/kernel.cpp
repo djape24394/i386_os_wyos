@@ -2,6 +2,7 @@
 #include "GlobalDescriptorTable.h"
 #include "InterruptManager.h"
 #include "KeyboardDriver.h"
+#include "MouseDriver.h"
 
 void printf(char* str)
 {
@@ -58,6 +59,7 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnum)
 
     // before activating the interrupts, we need to instantiate the hardware and activate the hardware
     KeyboardDriver keyboard(&im);
+    MouseDriver mouse(&im);
 
     im.activate();
     printf("Interrupts Activated!\n");

@@ -60,6 +60,7 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
 
     setInterruptDescriptorTableEntry(0x20, codeSegment, &handleInterruptRequest0x00, 0, IDT_INTERRUPT_GATE);
     setInterruptDescriptorTableEntry(0x21, codeSegment, &handleInterruptRequest0x01, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x2C, codeSegment, &handleInterruptRequest0x0C, 0, IDT_INTERRUPT_GATE);
 
     // Before loading Interrupt Descriptor Table, we communicate with master and slave rogrammable interrupt controller
     picMasterCommand.write(0x11);

@@ -23,7 +23,7 @@ KeyboardDriver::KeyboardDriver(InterruptManager* interrupt_manager)
 uint32_t KeyboardDriver::handleInterrupt(uint32_t esp)
 {
     uint8_t key = data_port.read();
-
+    // TODO: add all qwerty letters with shift to the switch
     // For each click we get two interrupts, one for press and one for release. 
     // key >= 0x80 is for the release and we ignore it
     if(key < 0x80)
