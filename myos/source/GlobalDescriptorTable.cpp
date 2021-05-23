@@ -1,4 +1,7 @@
-#include "GlobalDescriptorTable.h"
+#include <GlobalDescriptorTable.h>
+
+using namespace myos::common;
+using namespace myos;
 
 void printf(char *str);
 
@@ -24,12 +27,12 @@ GlobalDescriptorTable::GlobalDescriptorTable()
 
 GlobalDescriptorTable::~GlobalDescriptorTable() = default;
 
-uint16_t GlobalDescriptorTable::get_data_segment_address_offset()
+uint16_t GlobalDescriptorTable::getDataSegmentAddressOffset()
 {
     return (uint8_t *)&dataSegmentSelector - (uint8_t *)this;
 }
 
-uint16_t GlobalDescriptorTable::get_code_segment_address_offset()
+uint16_t GlobalDescriptorTable::getCodeSegmentAddressOffset()
 {
     return (uint8_t *)&codeSegmentSelector - (uint8_t *)this;
 }
@@ -71,7 +74,7 @@ GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base_ptr, u
     target[5] = type;
 }
 
-uint32_t GlobalDescriptorTable::SegmentDescriptor::get_base_ptr()
+uint32_t GlobalDescriptorTable::SegmentDescriptor::getBasePointer()
 {
     uint32_t base_ptr = 0u;
     base_ptr |= base_low_bytes;
@@ -80,7 +83,7 @@ uint32_t GlobalDescriptorTable::SegmentDescriptor::get_base_ptr()
     return base_ptr;
 }
 
-uint32_t GlobalDescriptorTable::SegmentDescriptor::get_limit_size()
+uint32_t GlobalDescriptorTable::SegmentDescriptor::getLimitSize()
 {
     uint32_t limit = 0u;
     limit |= limit_low_bytes;

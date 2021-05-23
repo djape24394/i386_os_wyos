@@ -1,9 +1,15 @@
-#include "types.h"
-#include "GlobalDescriptorTable.h"
-#include "InterruptManager.h"
-#include "Driver.h"
-#include "KeyboardDriver.h"
-#include "MouseDriver.h"
+#include <common/types.h>
+#include <GlobalDescriptorTable.h>
+#include <hardware_communication/InterruptManager.h>
+#include <hardware_communication/pci.h>
+#include <drivers/Driver.h>
+#include <drivers/KeyboardDriver.h>
+#include <drivers/MouseDriver.h>
+
+using namespace myos;
+using namespace myos::common;
+using namespace myos::hardware_communication;
+using namespace myos::drivers;
 
 void printf(char *str)
 {
@@ -40,6 +46,26 @@ void printf(char *str)
             y = 0U;
         }
     }
+}
+
+void printfHex(uint8_t key)
+{
+    char* foo = "0x00";
+    char* hex = "0123456789ABCDEF";
+    foo[2] = hex[(key >> 4) & 0xF];
+    foo[3] = hex[key & 0xF];
+    printf(foo);
+}
+
+void printfHex16(uint16_t key)
+{
+    char* foo = "0x0000";
+    char* hex = "0123456789ABCDEF";
+    foo[2] = hex[(key >> 12) & 0xF];
+    foo[3] = hex[(key >> 8) & 0xF];
+    foo[4] = hex[(key >> 4) & 0xF];
+    foo[5] = hex[key & 0xF];
+    printf(foo);
 }
 
 typedef void (*constructor)();
@@ -135,14 +161,17 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
 
     PrintfKeyboardEventHandler keyboard_console_event_handler;
     KeyboardDriver keyboard(&im, &keyboard_console_event_handler);
-    driver_manager.add_driver(&keyboard);
+    driver_manager.addDriver(&keyboard);
 
     MouseToConsoleEventHandler mouse_console_event_handler;
     MouseDriver mouse(&im, &mouse_console_event_handler);
-    driver_manager.add_driver(&mouse);
+    driver_manager.addDriver(&mouse);
+
+    PeripheralComponentInterconnectController pci_controller;
+    pci_controller.enumerateDrivers(&driver_manager);
 
     printf("Initializing Hardware, Stage 2\n");
-    driver_manager.activate_all();
+    driver_manager.activateAll();
 
     printf("Initializing Hardware, Stage 3\n");
     im.activate();

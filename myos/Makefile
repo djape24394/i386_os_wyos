@@ -1,15 +1,26 @@
-GPPPARAMS = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -Wno-write-strings
+GPPPARAMS = -m32 -Iinclude -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -Wno-write-strings
 ASPARAMS = --32
 LDPARAMS = -melf_i386
 
-objects = loader.o GlobalDescriptorTable.o Driver.o Port.o interruptstubs.o InterruptManager.o KeyboardDriver.o MouseDriver.o kernel.o
+objects = obj/loader.o \
+		  obj/GlobalDescriptorTable.o \
+		  obj/hardware_communication/Port.o \
+		  obj/hardware_communication/interruptstubs.o \
+		  obj/hardware_communication/InterruptManager.o \
+		  obj/hardware_communication/pci.o \
+		  obj/drivers/Driver.o \
+		  obj/drivers/KeyboardDriver.o \
+		  obj/drivers/MouseDriver.o \
+		  obj/kernel.o
 
 .PHONY: run clean_all
 
-%.o: %.cpp
+obj/%.o: source/%.cpp
+	mkdir -p $(@D)
 	g++ $(GPPPARAMS) -o $@ -c $<
 
-%.o: %.s
+obj/%.o: source/%.s
+	mkdir -p $(@D)
 	as $(ASPARAMS) -o $@ $<
 
 mykernel.bin: linker.ld $(objects)
@@ -38,4 +49,4 @@ run: mykernel.iso
 	virtualboxvm --startvm "MyOs" &
 
 clean_all:
-	rm -f *.o *.bin *.iso
+	rm -rf obj mykernel.bin mykernel.iso

@@ -1,24 +1,21 @@
-#include "MouseDriver.h"
+#include <drivers/MouseDriver.h>
+
+using namespace myos::drivers;
+using namespace myos::common;
+using namespace myos::hardware_communication;
 
 void printf(char *);
 
-
-
 MouseEventHandler::MouseEventHandler()
-{
-}
+{}
 void MouseEventHandler::onActivate()
-{
-}
+{}
 void MouseEventHandler::onMouseDown(uint8_t button)
-{
-}
+{}
 void MouseEventHandler::onMouseUp(uint8_t button)
-{
-}
+{}
 void MouseEventHandler::onMouseMove(int delta_x, int delta_y)
-{
-}
+{}
 
 // Mouse uses the same data port and command port as keyboard
 MouseDriver::MouseDriver(InterruptManager *interrupt_manager, MouseEventHandler* handler)

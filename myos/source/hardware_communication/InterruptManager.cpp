@@ -1,4 +1,7 @@
-#include "InterruptManager.h"
+#include <hardware_communication/InterruptManager.h>
+
+using namespace myos::common;
+using namespace myos::hardware_communication;
 
 void printf(char *str);
 void printfHex(uint8_t key);
@@ -47,7 +50,7 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
       picSlaveCommand(0xA0),
       picSlaveData(0xA1)
 {
-    uint16_t codeSegment = gdt->get_code_segment_address_offset();
+    uint16_t codeSegment = gdt->getCodeSegmentAddressOffset();
     const uint8_t IDT_INTERRUPT_GATE = 0xE;
 
     for (uint16_t i = 0; i < 256; i++)

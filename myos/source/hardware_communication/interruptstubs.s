@@ -3,7 +3,7 @@
 
 .section .text
 
-.extern _ZN16InterruptManager15handleInterruptEhj # importing symbol
+.extern _ZN4myos22hardware_communication16InterruptManager15handleInterruptEhj # importing symbol
 
 
 # creating macro for exporting functions
@@ -15,8 +15,8 @@ _ZN16InterruptManager16handleException\num\()Ev:
 .endm # end macro
 
 .macro HandleInterruptRequest num
-.global _ZN16InterruptManager26handleInterruptRequest\num\()Ev
-_ZN16InterruptManager26handleInterruptRequest\num\()Ev:
+.global _ZN4myos22hardware_communication16InterruptManager26handleInterruptRequest\num\()Ev
+_ZN4myos22hardware_communication16InterruptManager26handleInterruptRequest\num\()Ev:
     movb $\num + IRQ_BASE, (interruptnumber)
     jmp int_bottom
 .endm # end macro
@@ -36,8 +36,8 @@ int_bottom:
     # pushed the arguments for the cpp function and call it
     pushl %esp
     push (interruptnumber) 
-    call _ZN16InterruptManager15handleInterruptEhj
-    movl %eax, %esp # retrieve back the current stack pointer returned by _ZN16InterruptManager15handleInterruptEhj
+    call _ZN4myos22hardware_communication16InterruptManager15handleInterruptEhj
+    movl %eax, %esp # retrieve back the current stack pointer returned by _ZN4myos22hardware_communication16InterruptManager15handleInterruptEhj
 
     popl %gs
     popl %fs
@@ -47,8 +47,8 @@ int_bottom:
 
     iret
 
-.global _ZN16InterruptManager22ignoreInterruptRequestEv
-_ZN16InterruptManager22ignoreInterruptRequestEv:
+.global _ZN4myos22hardware_communication16InterruptManager22ignoreInterruptRequestEv
+_ZN4myos22hardware_communication16InterruptManager22ignoreInterruptRequestEv:
 
     iret
 

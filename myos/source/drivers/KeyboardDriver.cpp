@@ -1,4 +1,8 @@
-#include "KeyboardDriver.h"
+#include <drivers/KeyboardDriver.h>
+
+using namespace myos::drivers;
+using namespace myos::common;
+using namespace myos::hardware_communication;
 
 void printf(char *);
 void printfHex(uint8_t key);
@@ -109,15 +113,6 @@ uint32_t KeyboardDriver::handleInterrupt(uint32_t esp)
     }
     
     return esp;
-}
-
-void printfHex(uint8_t key)
-{
-    char* foo = "0x00";
-    char* hex = "0123456789ABCDEF";
-    foo[11] = hex[(key >> 4) & 0xF];
-    foo[12] = hex[key & 0xF];
-    printf(foo);
 }
 
 KeyboardDriver::~KeyboardDriver(){}
