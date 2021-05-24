@@ -154,27 +154,27 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
     printf("Hello World!\n");
 
     GlobalDescriptorTable gdt;
-    InterruptManager im(&gdt);
+    InterruptManager interrupt_manager(&gdt);
 
     printf("Initializing Hardware, Stage 1\n");
     DriverManager driver_manager;
 
     PrintfKeyboardEventHandler keyboard_console_event_handler;
-    KeyboardDriver keyboard(&im, &keyboard_console_event_handler);
+    KeyboardDriver keyboard(&interrupt_manager, &keyboard_console_event_handler);
     driver_manager.addDriver(&keyboard);
 
     MouseToConsoleEventHandler mouse_console_event_handler;
-    MouseDriver mouse(&im, &mouse_console_event_handler);
+    MouseDriver mouse(&interrupt_manager, &mouse_console_event_handler);
     driver_manager.addDriver(&mouse);
 
     PeripheralComponentInterconnectController pci_controller;
-    pci_controller.enumerateDrivers(&driver_manager);
+    pci_controller.enumerateDrivers(&driver_manager, &interrupt_manager);
 
     printf("Initializing Hardware, Stage 2\n");
     driver_manager.activateAll();
 
     printf("Initializing Hardware, Stage 3\n");
-    im.activate();
+    interrupt_manager.activate();
 
     printf("Interrupts Activated!\n");
 
