@@ -5,6 +5,7 @@
 #include <drivers/Driver.h>
 #include <drivers/KeyboardDriver.h>
 #include <drivers/MouseDriver.h>
+#include <drivers/VideoGraphicsArray.h>
 
 using namespace myos;
 using namespace myos::common;
@@ -177,6 +178,17 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
     interrupt_manager.activate();
 
     printf("Interrupts Activated!\n");
+
+    VideoGraphicsArray vga;
+
+    vga.setMode(320U, 200U, 8U);
+    for(uint32_t y = 0U; y < 200U; y++)
+    {
+        for(uint32_t x = 0U; x < 320U; x++)
+        {
+            vga.putPixel(x, y, 0x00U, 0x00U, 0xA8U);
+        }
+    }
 
     while (1)
         ;

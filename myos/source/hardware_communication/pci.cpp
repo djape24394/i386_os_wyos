@@ -64,6 +64,8 @@ void PeripheralComponentInterconnectController::enumerateDrivers(drivers::Driver
                     continue;
                 }
 
+                // for each bus/device/function/ there can be up to 6 bars
+                // https://stackoverflow.com/questions/50988614/why-there-are-6-base-address-registers-bars-in-pcie-endpoint
                 for (int bar_nmbr = 0; bar_nmbr < 6; bar_nmbr++)
                 {
                     BaseAddressRegister bar{getBaseAddressRegister(bus_nmbr, device_nmbr, function_nmbr, bar_nmbr)};
@@ -123,7 +125,7 @@ BaseAddressRegister PeripheralComponentInterconnectController::getBaseAddressReg
     BaseAddressRegister bar{};
 
     uint32_t headertype = read(bus_nmbr, device_nmbr, function_nmbr, 0x0EU) & 0x7FU;
-    int maxBars = 6 - (4 * headertype); // in case of
+    int maxBars = 6 - (4 * headertype); // in case of 64 bit bars, there are only 2 of them
     if (bar_nmbr >= maxBars)
         return bar;
 
