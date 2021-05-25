@@ -12,6 +12,9 @@ objects = obj/loader.o \
 		  obj/drivers/KeyboardDriver.o \
 		  obj/drivers/MouseDriver.o \
 		  obj/drivers/VideoGraphicsArray.o \
+		  obj/gui/Widget.o \
+		  obj/gui/Window.o \
+		  obj/gui/Desktop.o \
 		  obj/kernel.o
 
 .PHONY: run clean_all

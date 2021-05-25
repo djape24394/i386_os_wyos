@@ -6,11 +6,14 @@
 #include <drivers/KeyboardDriver.h>
 #include <drivers/MouseDriver.h>
 #include <drivers/VideoGraphicsArray.h>
+#include <gui/Desktop.h>
+#include <gui/Window.h>
 
 using namespace myos;
 using namespace myos::common;
 using namespace myos::hardware_communication;
 using namespace myos::drivers;
+using namespace myos::gui;
 
 void printf(char *str)
 {
@@ -157,15 +160,19 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
     GlobalDescriptorTable gdt;
     InterruptManager interrupt_manager(&gdt);
 
+    Desktop desktop(320, 200, 0x00U, 0x00U, 0xA8U);
+
     printf("Initializing Hardware, Stage 1\n");
     DriverManager driver_manager;
 
-    PrintfKeyboardEventHandler keyboard_console_event_handler;
-    KeyboardDriver keyboard(&interrupt_manager, &keyboard_console_event_handler);
+    // PrintfKeyboardEventHandler keyboard_console_event_handler;
+    // KeyboardDriver keyboard(&interrupt_manager, &keyboard_console_event_handler);
+    KeyboardDriver keyboard(&interrupt_manager, &desktop);
     driver_manager.addDriver(&keyboard);
 
-    MouseToConsoleEventHandler mouse_console_event_handler;
-    MouseDriver mouse(&interrupt_manager, &mouse_console_event_handler);
+    // MouseToConsoleEventHandler mouse_console_event_handler;
+    // MouseDriver mouse(&interrupt_manager, &mouse_console_event_handler);
+    MouseDriver mouse(&interrupt_manager, &desktop);
     driver_manager.addDriver(&mouse);
 
     PeripheralComponentInterconnectController pci_controller;
@@ -174,22 +181,23 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
     printf("Initializing Hardware, Stage 2\n");
     driver_manager.activateAll();
 
+   VideoGraphicsArray vga;
+
+    vga.setMode(320U, 200U, 8U);
+    // vga.fillRectangle(0U, 0U, 320U, 200U, 0x00U, 0x00U, 0xA8U);
+
+    Window window1(&desktop, 10, 10, 20, 20, 0xA8U, 0x00U, 0x00U);
+    desktop.addChild(&window1);
+    Window window2(&desktop, 40, 15, 30, 30, 0x00U, 0xA8U, 0x00U);
+    desktop.addChild(&window2);
+
     printf("Initializing Hardware, Stage 3\n");
     interrupt_manager.activate();
 
     printf("Interrupts Activated!\n");
 
-    VideoGraphicsArray vga;
-
-    vga.setMode(320U, 200U, 8U);
-    for(uint32_t y = 0U; y < 200U; y++)
-    {
-        for(uint32_t x = 0U; x < 320U; x++)
-        {
-            vga.putPixel(x, y, 0x00U, 0x00U, 0xA8U);
-        }
-    }
-
     while (1)
-        ;
+    {
+        desktop.draw(&vga);
+    }
 }

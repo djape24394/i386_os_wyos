@@ -28,7 +28,7 @@ void VideoGraphicsArray::writeRegisters(uint8_t *registers)
     for(uint8_t i = 0; i < (uint8_t)25U; i++)
     {
         crtc_index_port.write(i);
-        crtc_index_port.write(*(registers++));
+        crtc_data_port.write(*(registers++));
     }
 
     // crtc
@@ -67,18 +67,20 @@ uint8_t* VideoGraphicsArray::getFrameBufferAddressSegment()
     }
 }
 
-void VideoGraphicsArray::putPixel(uint32_t x, uint32_t y, uint8_t color_index)
+void VideoGraphicsArray::putPixel(int32_t x, int32_t y, uint8_t color_index)
 {
+    if(x < 0 || x >= 320 || y < 0 || y >= 200) return;
     uint8_t *pixel_address = getFrameBufferAddressSegment() + 320 * y + x;
     *pixel_address = color_index;
 }
 
 uint8_t VideoGraphicsArray::getColorIndex(uint8_t red, uint8_t green, uint8_t blue)
 {
-    if(red == 0x00U && green == 0x00U && blue == 0xA8U)
-    {
-        return 0x01U;
-    }
+    if(red == 0x00U && green == 0x00U && blue == 0x00U) return 0x00U; // black
+    if(red == 0x00U && green == 0x00U && blue == 0xA8U) return 0x01U; // blue
+    if(red == 0x00U && green == 0xA8U && blue == 0x00U) return 0x02U; // green
+    if(red == 0xA8U && green == 0x00U && blue == 0x00U) return 0x04U; // red
+    if(red == 0xFFU && green == 0xFFU && blue == 0xFFU) return 0x3FU; // white
     return 0x00U;
 }
 
@@ -133,7 +135,19 @@ bool VideoGraphicsArray::setMode(uint32_t width, uint32_t height, uint32_t color
     writeRegisters(g_320x200x256);
     return true;
 }
-void VideoGraphicsArray::putPixel(uint32_t x, uint32_t y, uint8_t red, uint8_t green, uint8_t blue)
+
+void VideoGraphicsArray::putPixel(int32_t x, int32_t y, uint8_t red, uint8_t green, uint8_t blue)
 {
     putPixel(x, y, getColorIndex(red, green, blue));
+}
+
+void VideoGraphicsArray::fillRectangle(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t red, uint8_t green, uint8_t blue)
+{
+    for(int32_t i = y; i < y + height; i++)
+    {
+        for(int32_t j = x; j < x + width; j++)
+        {
+            putPixel(j, i, red, green, blue);
+        }
+    }
 }

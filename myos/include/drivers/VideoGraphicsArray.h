@@ -26,7 +26,7 @@ namespace myos
 
             void writeRegisters(common::uint8_t *registers);
             virtual common::uint8_t *getFrameBufferAddressSegment();
-            virtual void putPixel(common::uint32_t x, common::uint32_t y, common::uint8_t color_index);
+            virtual void putPixel(common::int32_t x, common::int32_t y, common::uint8_t color_index);
             virtual common::uint8_t getColorIndex(common::uint8_t red, common::uint8_t green, common::uint8_t blue);
 
         public:
@@ -35,7 +35,8 @@ namespace myos
 
             virtual bool isModeSupported(common::uint32_t width, common::uint32_t height, common::uint32_t color_depth);
             virtual bool setMode(common::uint32_t width, common::uint32_t height, common::uint32_t color_depth);
-            virtual void putPixel(common::uint32_t x, common::uint32_t y, common::uint8_t red, common::uint8_t green, common::uint8_t blue);
+            virtual void putPixel(common::int32_t x, common::int32_t y, common::uint8_t red, common::uint8_t green, common::uint8_t blue);
+            virtual void fillRectangle(common::uint32_t x, common::uint32_t y, common::uint32_t width, common::uint32_t height, common::uint8_t red, common::uint8_t green, common::uint8_t blue);
         };
     } // namespace drivers
 } // namespace myos
