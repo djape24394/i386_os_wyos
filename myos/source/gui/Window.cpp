@@ -16,7 +16,7 @@ Window::~Window()
 
 void Window::onMouseDown(int32_t x, int32_t y, uint8_t button)
 {
-    dragged = (button == 1);
+    dragged = (button == 1U);
     CompositeWidget::onMouseDown(x, y, button);
 }
 

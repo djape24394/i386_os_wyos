@@ -30,6 +30,12 @@ MouseDriver::MouseDriver(InterruptManager *interrupt_manager, MouseEventHandler*
 
 void MouseDriver::activate()
 {
+    offset = 0U;
+    buttons = 0U;
+    if(handler != nullptr)
+    {
+        handler->onActivate();
+    }
     // when you start operating system, this will just desc
     while (command_port.read() & 0x1)
     {
@@ -60,7 +66,7 @@ uint32_t MouseDriver::handleInterrupt(uint32_t esp)
     {
         if(buffer[1] != 0 || buffer[2] != 0)
         {
-        handler->onMouseMove((int8_t)buffer[1], (int8_t) -buffer[2]);
+        handler->onMouseMove((int8_t)buffer[1], -((int8_t)buffer[2]));
         
         // TODO: I am not shure how to handle mouseUp, upDown, for now, I will assume switch from 0 to 1 as down,
         // and from 0 to 1 as one.

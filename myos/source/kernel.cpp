@@ -9,6 +9,8 @@
 #include <gui/Desktop.h>
 #include <gui/Window.h>
 
+#define GRAPHICS_MODE
+
 using namespace myos;
 using namespace myos::common;
 using namespace myos::hardware_communication;
@@ -54,8 +56,8 @@ void printf(char *str)
 
 void printfHex(uint8_t key)
 {
-    char* foo = "0x00";
-    char* hex = "0123456789ABCDEF";
+    char *foo = "0x00";
+    char *hex = "0123456789ABCDEF";
     foo[2] = hex[(key >> 4) & 0xF];
     foo[3] = hex[key & 0xF];
     printf(foo);
@@ -63,8 +65,8 @@ void printfHex(uint8_t key)
 
 void printfHex16(uint16_t key)
 {
-    char* foo = "0x0000";
-    char* hex = "0123456789ABCDEF";
+    char *foo = "0x0000";
+    char *hex = "0123456789ABCDEF";
     foo[2] = hex[(key >> 12) & 0xF];
     foo[3] = hex[(key >> 8) & 0xF];
     foo[4] = hex[(key >> 4) & 0xF];
@@ -159,20 +161,26 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
 
     GlobalDescriptorTable gdt;
     InterruptManager interrupt_manager(&gdt);
-
+#ifdef GRAPHICS_MODE
     Desktop desktop(320, 200, 0x00U, 0x00U, 0xA8U);
-
+#endif
     printf("Initializing Hardware, Stage 1\n");
     DriverManager driver_manager;
 
-    // PrintfKeyboardEventHandler keyboard_console_event_handler;
-    // KeyboardDriver keyboard(&interrupt_manager, &keyboard_console_event_handler);
+#ifdef GRAPHICS_MODE
     KeyboardDriver keyboard(&interrupt_manager, &desktop);
+#else
+    PrintfKeyboardEventHandler keyboard_console_event_handler;
+    KeyboardDriver keyboard(&interrupt_manager, &keyboard_console_event_handler);
+#endif
     driver_manager.addDriver(&keyboard);
 
-    // MouseToConsoleEventHandler mouse_console_event_handler;
-    // MouseDriver mouse(&interrupt_manager, &mouse_console_event_handler);
+#ifdef GRAPHICS_MODE
     MouseDriver mouse(&interrupt_manager, &desktop);
+#else
+    MouseToConsoleEventHandler mouse_console_event_handler;
+    MouseDriver mouse(&interrupt_manager, &mouse_console_event_handler);
+#endif
     driver_manager.addDriver(&mouse);
 
     PeripheralComponentInterconnectController pci_controller;
@@ -181,7 +189,8 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
     printf("Initializing Hardware, Stage 2\n");
     driver_manager.activateAll();
 
-   VideoGraphicsArray vga;
+#ifdef GRAPHICS_MODE
+    VideoGraphicsArray vga;
 
     vga.setMode(320U, 200U, 8U);
     // vga.fillRectangle(0U, 0U, 320U, 200U, 0x00U, 0x00U, 0xA8U);
@@ -190,6 +199,7 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
     desktop.addChild(&window1);
     Window window2(&desktop, 40, 15, 30, 30, 0x00U, 0xA8U, 0x00U);
     desktop.addChild(&window2);
+#endif
 
     printf("Initializing Hardware, Stage 3\n");
     interrupt_manager.activate();
@@ -198,6 +208,8 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
 
     while (1)
     {
+#ifdef GRAPHICS_MODE
         desktop.draw(&vga);
+#endif
     }
 }
