@@ -8,6 +8,7 @@ objects = obj/loader.o \
 		  obj/hardware_communication/interruptstubs.o \
 		  obj/hardware_communication/InterruptManager.o \
 		  obj/hardware_communication/pci.o \
+		  obj/multitasking.o \
 		  obj/drivers/Driver.o \
 		  obj/drivers/KeyboardDriver.o \
 		  obj/drivers/MouseDriver.o \

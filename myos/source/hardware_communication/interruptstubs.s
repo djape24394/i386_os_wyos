@@ -18,6 +18,7 @@ _ZN16InterruptManager16handleException\num\()Ev:
 .global _ZN4myos22hardware_communication16InterruptManager26handleInterruptRequest\num\()Ev
 _ZN4myos22hardware_communication16InterruptManager26handleInterruptRequest\num\()Ev:
     movb $\num + IRQ_BASE, (interruptnumber)
+    pushl $0  #  need to push it because of CPUstate alignment, for exceptions this is done by cpu
     jmp int_bottom
 .endm # end macro
 
@@ -27,11 +28,20 @@ HandleInterruptRequest 0x0C
 
 int_bottom:
 
-    pusha # save all registers before the cpp function call
-    pushl %ds # push data segment
-    pushl %es
-    pushl %fs
-    pushl %gs
+    # pusha # save all registers before the cpp function call
+    # pushl %ds # push data segment
+    # pushl %es
+    # pushl %fs
+    # pushl %gs
+    
+    pushl %ebp
+    pushl %edi
+    pushl %esi
+
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
+    pushl %eax
 
     # pushed the arguments for the cpp function and call it
     pushl %esp
@@ -39,13 +49,22 @@ int_bottom:
     call _ZN4myos22hardware_communication16InterruptManager15handleInterruptEhj
     movl %eax, %esp # retrieve back the current stack pointer returned by _ZN4myos22hardware_communication16InterruptManager15handleInterruptEhj
 
-    popl %gs
-    popl %fs
-    popl %es
-    popl %ds
-    popa
+    popl %eax
+    popl %ebx
+    popl %ecx
+    popl %edx
 
-    iret
+    popl %esi
+    popl %edi
+    popl %ebp
+
+    # popl %gs
+    # popl %fs
+    # popl %es
+    # popl %ds
+    # popa
+
+    add $4, %esp
 
 .global _ZN4myos22hardware_communication16InterruptManager22ignoreInterruptRequestEv
 _ZN4myos22hardware_communication16InterruptManager22ignoreInterruptRequestEv:

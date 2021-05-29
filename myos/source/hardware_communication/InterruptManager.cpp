@@ -1,5 +1,6 @@
 #include <hardware_communication/InterruptManager.h>
 
+using namespace myos;
 using namespace myos::common;
 using namespace myos::hardware_communication;
 
@@ -12,8 +13,8 @@ InterruptManager *InterruptManager::activeInterruptManager{nullptr};
 
 uint32_t InterruptManager::handleInterrupt(uint8_t interrupt_number, uint32_t esp)
 {
-    if(activeInterruptManager != nullptr)
-    {    
+    if (activeInterruptManager != nullptr)
+    {
         return activeInterruptManager->handleInterruptMember(interrupt_number, esp);
     }
     // otherwise just return current stack pointer
@@ -22,21 +23,27 @@ uint32_t InterruptManager::handleInterrupt(uint8_t interrupt_number, uint32_t es
 
 uint32_t InterruptManager::handleInterruptMember(uint8_t interrupt_number, uint32_t esp)
 {
-    if(interruptHandlers[interrupt_number] != nullptr)
+    if (interruptHandlers[interrupt_number] != nullptr)
     {
         esp = interruptHandlers[interrupt_number]->handleInterrupt(esp);
-    }else if(interrupt_number != 0x20)
+    }
+    else if (interrupt_number != 0x20)
     {
         printf("UNHANDLED INTERRUPT ");
         printfHex(interrupt_number);
     }
-    
+
+    if(interrupt_number == 0x20U) // timer intrerrupt
+    {
+        esp = (uint32_t)task_manager->schedule((CPUstate*)esp);
+    }
+
     // if this was hardware interrupt, send the response to pics
-    if(interrupt_number >= 0x20 && interrupt_number < 0x30)
+    if (interrupt_number >= 0x20 && interrupt_number < 0x30)
     {
         // always send respond to master pic, and to slave only if interrupt came from slave(>=0x28)
         picMasterCommand.write(0x20);
-        if(interrupt_number >= 0x28)
+        if (interrupt_number >= 0x28)
         {
             picSlaveCommand.write(0x20);
         }
@@ -44,11 +51,12 @@ uint32_t InterruptManager::handleInterruptMember(uint8_t interrupt_number, uint3
     return esp;
 }
 
-InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
+InterruptManager::InterruptManager(GlobalDescriptorTable *gdt, TaskManager *task_manager)
     : picMasterCommand(0x20),
       picMasterData(0x21),
       picSlaveCommand(0xA0),
-      picSlaveData(0xA1)
+      picSlaveData(0xA1),
+      task_manager(task_manager)
 {
     uint16_t codeSegment = gdt->getCodeSegmentAddressOffset();
     const uint8_t IDT_INTERRUPT_GATE = 0xE;
@@ -128,16 +136,16 @@ void InterruptManager::deactivate()
     }
 }
 
-InterruptHandler::InterruptHandler(uint8_t interrupt_number, InterruptManager* interrupt_manager)
-: interrupt_number(interrupt_number),
-  interrupt_manager(interrupt_manager)
+InterruptHandler::InterruptHandler(uint8_t interrupt_number, InterruptManager *interrupt_manager)
+    : interrupt_number(interrupt_number),
+      interrupt_manager(interrupt_manager)
 {
     interrupt_manager->interruptHandlers[interrupt_number] = this;
 }
 
 InterruptHandler::~InterruptHandler()
 {
-    if(interrupt_manager->interruptHandlers[interrupt_number] == this)
+    if (interrupt_manager->interruptHandlers[interrupt_number] == this)
     {
         interrupt_manager->interruptHandlers[interrupt_number] = nullptr;
     }

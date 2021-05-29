@@ -8,8 +8,9 @@
 #include <drivers/VideoGraphicsArray.h>
 #include <gui/Desktop.h>
 #include <gui/Window.h>
+#include <multitasking.h>
 
-#define GRAPHICS_MODE
+// #define GRAPHICS_MODE
 
 using namespace myos;
 using namespace myos::common;
@@ -72,6 +73,22 @@ void printfHex16(uint16_t key)
     foo[4] = hex[(key >> 4) & 0xF];
     foo[5] = hex[key & 0xF];
     printf(foo);
+}
+
+void taskA()
+{
+    while (true)
+    {
+        printf("A");
+    }
+}
+
+void taskB()
+{
+    while (true)
+    {
+        printf("B");
+    }
 }
 
 typedef void (*constructor)();
@@ -160,7 +177,15 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
     printf("Hello World!\n");
 
     GlobalDescriptorTable gdt;
-    InterruptManager interrupt_manager(&gdt);
+
+    TaskManager task_manager;
+    Task task1(&gdt, taskA);
+    Task task2(&gdt, taskB);
+
+    task_manager.addTask(&task1);
+    task_manager.addTask(&task2);
+
+    InterruptManager interrupt_manager(&gdt, &task_manager);
 #ifdef GRAPHICS_MODE
     Desktop desktop(320, 200, 0x00U, 0x00U, 0xA8U);
 #endif
