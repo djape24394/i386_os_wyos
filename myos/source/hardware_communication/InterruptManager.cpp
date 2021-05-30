@@ -69,7 +69,20 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt, TaskManager *task
 
     setInterruptDescriptorTableEntry(0x20, codeSegment, &handleInterruptRequest0x00, 0, IDT_INTERRUPT_GATE);
     setInterruptDescriptorTableEntry(0x21, codeSegment, &handleInterruptRequest0x01, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x22, codeSegment, &handleInterruptRequest0x02, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x23, codeSegment, &handleInterruptRequest0x03, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x24, codeSegment, &handleInterruptRequest0x04, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x25, codeSegment, &handleInterruptRequest0x05, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x26, codeSegment, &handleInterruptRequest0x06, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x27, codeSegment, &handleInterruptRequest0x07, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x28, codeSegment, &handleInterruptRequest0x08, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x29, codeSegment, &handleInterruptRequest0x09, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x2A, codeSegment, &handleInterruptRequest0x0A, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x2B, codeSegment, &handleInterruptRequest0x0B, 0, IDT_INTERRUPT_GATE);
     setInterruptDescriptorTableEntry(0x2C, codeSegment, &handleInterruptRequest0x0C, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x2D, codeSegment, &handleInterruptRequest0x0D, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x2E, codeSegment, &handleInterruptRequest0x0E, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x2F, codeSegment, &handleInterruptRequest0x0F, 0, IDT_INTERRUPT_GATE);
 
     // Before loading Interrupt Descriptor Table, we communicate with master and slave rogrammable interrupt controller
     picMasterCommand.write(0x11);

@@ -14,6 +14,7 @@ objects = obj/loader.o \
 		  obj/drivers/KeyboardDriver.o \
 		  obj/drivers/MouseDriver.o \
 		  obj/drivers/VideoGraphicsArray.o \
+		  obj/drivers/AMD_am79c973.o \
 		  obj/gui/Widget.o \
 		  obj/gui/Window.o \
 		  obj/gui/Desktop.o \

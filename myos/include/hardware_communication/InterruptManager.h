@@ -75,9 +75,24 @@ namespace myos
             myos::common::uint32_t handleInterruptMember(myos::common::uint8_t interrupt_number, myos::common::uint32_t esp);
 
             static void ignoreInterruptRequest();
+
             static void handleInterruptRequest0x00();
             static void handleInterruptRequest0x01();
+            static void handleInterruptRequest0x02();
+            static void handleInterruptRequest0x03();
+            static void handleInterruptRequest0x04();
+            static void handleInterruptRequest0x05();
+            static void handleInterruptRequest0x06();
+            static void handleInterruptRequest0x07();
+            static void handleInterruptRequest0x08();
+            static void handleInterruptRequest0x09();
+            static void handleInterruptRequest0x0A();
+            static void handleInterruptRequest0x0B();
             static void handleInterruptRequest0x0C();
+            static void handleInterruptRequest0x0D();
+            static void handleInterruptRequest0x0E();
+            static void handleInterruptRequest0x0F();
+            static void handleInterruptRequest0x31();
 
             void activate();
             void deactivate();

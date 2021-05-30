@@ -1,5 +1,8 @@
 #include <hardware_communication/pci.h>
+#include <memory_management.h>
+#include <drivers/AMD_am79c973.h>
 
+using namespace myos;
 using namespace myos::common;
 using namespace myos::hardware_communication;
 using namespace myos::drivers;
@@ -74,10 +77,14 @@ void PeripheralComponentInterconnectController::enumerateDrivers(drivers::Driver
                         // TODO: see this port_base_number later
                         device_descriptor.port_base_number = (uint32_t)bar.address;
                     }
-                    Driver *driver = getDriver(device_descriptor, interrupt_manager);
-                    if (driver != nullptr)
-                        driver_manager->addDriver(driver);
                 }
+
+                // moved this from the for loop above, we want only one driver per device
+                // ------------------
+                Driver *driver = getDriver(device_descriptor, interrupt_manager);
+                if (driver != nullptr)
+                    driver_manager->addDriver(driver);
+                // ------------------
 
                 printf("PCI BUS ");
                 printfHex(bus_nmbr & 0xFF);
@@ -164,13 +171,20 @@ BaseAddressRegister PeripheralComponentInterconnectController::getBaseAddressReg
 
 Driver *PeripheralComponentInterconnectController::getDriver(PeripheralComponentInterconnectDeviceDescriptor device_descriptor, InterruptManager *interrupt_manager)
 {
+    Driver *driver{nullptr};
     switch (device_descriptor.vendor_id)
     {
     case 0x1022U: // AMD
         switch (device_descriptor.device_id)
         {
         case 0x2000U: // am79c973
-            printf("AMD am79c973");
+            printf("AMD am79c973\n");
+            driver = (Driver*) MemoryManager::active_memory_manager->malloc(sizeof(AMD_am79c973));
+            if(driver != nullptr) 
+            {
+                new (driver) AMD_am79c973(&device_descriptor, interrupt_manager);
+                return driver;
+            }
             break;
         default:
             break;
@@ -199,5 +213,5 @@ Driver *PeripheralComponentInterconnectController::getDriver(PeripheralComponent
     default:
         break;
     }
-    return nullptr;
+    return driver;
 }
