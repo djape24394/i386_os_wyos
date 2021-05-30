@@ -9,6 +9,7 @@
 #include <gui/Desktop.h>
 #include <gui/Window.h>
 #include <multitasking.h>
+#include <memory_management.h>
 
 // #define GRAPHICS_MODE
 
@@ -72,6 +73,21 @@ void printfHex16(uint16_t key)
     foo[3] = hex[(key >> 8) & 0xF];
     foo[4] = hex[(key >> 4) & 0xF];
     foo[5] = hex[key & 0xF];
+    printf(foo);
+}
+
+void printfHex32(uint32_t key)
+{
+    char *foo = "0x00000000";
+    char *hex = "0123456789ABCDEF";
+    foo[2] = hex[(key >> 28) & 0xF];
+    foo[3] = hex[(key >> 24) & 0xF];
+    foo[4] = hex[(key >> 20) & 0xF];
+    foo[5] = hex[(key >> 16) & 0xF];
+    foo[6] = hex[(key >> 12) & 0xF];
+    foo[7] = hex[(key >> 8) & 0xF];
+    foo[8] = hex[(key >> 4) & 0xF];
+    foo[9] = hex[key & 0xF];
     printf(foo);
 }
 
@@ -178,12 +194,27 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
 
     GlobalDescriptorTable gdt;
 
-    TaskManager task_manager;
-    Task task1(&gdt, taskA);
-    Task task2(&gdt, taskB);
+    // Heap address starts at 10 MB. This is hardcoded, option to take pointer after kernel_stack in loader.s, but tricky
+    size_t heap_start_address = 10 * 1024 * 1024; 
+    // ram_size in KB read from multiboot info, can look at gnu muliboot.h
+    uint32_t *ram_size = (uint32_t*)(((size_t)multiboot_structure) + 8);
+    MemoryManager memory_manager(heap_start_address, *ram_size*1024 - heap_start_address - 10 * 1024); // 10 * 1024(10 KB padding)
 
-    task_manager.addTask(&task1);
-    task_manager.addTask(&task2);
+    printf("heap: ");
+    printfHex32(heap_start_address); // for 10 MB, should be 0x00A00000, 10 * 2^20 bytes
+    
+    void *allocated = memory_manager.malloc(1024);
+    printf("\nallocated: ");
+
+    printfHex32((uint32_t)allocated); // shoud be heap address + 16 bytes
+    printf("\n");
+
+    TaskManager task_manager;
+    // Task task1(&gdt, taskA);
+    // Task task2(&gdt, taskB);
+
+    // task_manager.addTask(&task1);
+    // task_manager.addTask(&task2);
 
     InterruptManager interrupt_manager(&gdt, &task_manager);
 #ifdef GRAPHICS_MODE

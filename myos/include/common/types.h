@@ -16,6 +16,7 @@ namespace myos
 
         typedef long long int int64_t;
         typedef unsigned long long int uint64_t;
+        typedef uint32_t size_t; // on 32 bit system, addresses are 32 bit
     } // namespace common
 } // namespace myos
 
