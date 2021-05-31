@@ -13,6 +13,7 @@ objects = obj/loader.o \
 		  obj/drivers/Driver.o \
 		  obj/drivers/KeyboardDriver.o \
 		  obj/drivers/MouseDriver.o \
+		  obj/drivers/AdvancedTechnologyAttachment.o \
 		  obj/drivers/VideoGraphicsArray.o \
 		  obj/drivers/AMD_am79c973.o \
 		  obj/gui/Widget.o \

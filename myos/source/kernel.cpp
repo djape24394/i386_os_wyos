@@ -6,6 +6,7 @@
 #include <drivers/KeyboardDriver.h>
 #include <drivers/MouseDriver.h>
 #include <drivers/VideoGraphicsArray.h>
+#include <drivers/AdvancedTechnologyAttachment.h>
 #include <gui/Desktop.h>
 #include <gui/Window.h>
 #include <multitasking.h>
@@ -259,6 +260,28 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
 
     printf("Initializing Hardware, Stage 3\n");
     interrupt_manager.activate();
+
+    // interrupt 14
+    AdvancedTechnologyAttachment ata0_master(0x1F0U, true);
+    printf("ATA Primary Master: ");
+    ata0_master.identify();
+    
+    AdvancedTechnologyAttachment ata0_slave(0x1F0U, false);
+    printf("ATA Primary Slave: ");
+    ata0_slave.identify();
+
+    char *ata_buffer = "###THANKS VIKTOR###";
+    ata0_slave.write28(0, (uint8_t*) ata_buffer, 20);
+    ata0_slave.flush();
+    
+    ata0_slave.read28(0, (uint8_t*) ata_buffer, 20);
+
+    // interrupt 15
+    AdvancedTechnologyAttachment ata1_master(0x170U, true);
+    AdvancedTechnologyAttachment ata1_slave(0x170U, false);
+
+    // third: 0x1E8
+    // fourth: 0x168
 
     // made driver manager drivers array public, just to test if this works
     // AMD_am79c973 *eth0 = (AMD_am79c973*)(driver_manager.drivers[2]);

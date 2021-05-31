@@ -6,7 +6,7 @@ using namespace myos::drivers;
 using namespace myos::hardware_communication;
 
 void printf(char *);
-void printfHex(uint8_t key)
+void printfHex(uint8_t key);
 
 AMD_am79c973::AMD_am79c973(PeripheralComponentInterconnectDeviceDescriptor *pci_descriptor, InterruptManager *interrupt_manager)
     : Driver(),
@@ -117,7 +117,7 @@ uint32_t AMD_am79c973::handleInterrupt(uint32_t esp)
     if ((temp & 0x0800U) == 0x0800U)
         printf("amd am79c973 MEMORY ERROR\n");
     if ((temp & 0x0400U) == 0x0400U)
-        receive_data()
+        receive_data();
     if ((temp & 0x0200U) == 0x0200U)
         printf("amd am79c973 DATA SENT\n");
 
@@ -151,6 +151,7 @@ void AMD_am79c973::send_data(common::uint8_t *buffer, int size)
     register_address_port.write(0U);
     register_data_port.write(0x48U);
 }
+
 void AMD_am79c973::receive_data()
 {
     printf("amd am79c973 DATA RECEIVED\n");
