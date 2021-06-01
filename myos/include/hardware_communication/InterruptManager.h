@@ -93,6 +93,7 @@ namespace myos
             static void handleInterruptRequest0x0E();
             static void handleInterruptRequest0x0F();
             static void handleInterruptRequest0x31();
+            static void handleInterruptRequest0x80();
 
             void activate();
             void deactivate();

@@ -83,6 +83,8 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt, TaskManager *task
     setInterruptDescriptorTableEntry(0x2D, codeSegment, &handleInterruptRequest0x0D, 0, IDT_INTERRUPT_GATE);
     setInterruptDescriptorTableEntry(0x2E, codeSegment, &handleInterruptRequest0x0E, 0, IDT_INTERRUPT_GATE);
     setInterruptDescriptorTableEntry(0x2F, codeSegment, &handleInterruptRequest0x0F, 0, IDT_INTERRUPT_GATE);
+    setInterruptDescriptorTableEntry(0x80U, codeSegment, &handleInterruptRequest0x80, 0, IDT_INTERRUPT_GATE);
+
 
     // Before loading Interrupt Descriptor Table, we communicate with master and slave rogrammable interrupt controller
     picMasterCommand.write(0x11);

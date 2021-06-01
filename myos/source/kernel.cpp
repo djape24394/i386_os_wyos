@@ -9,6 +9,7 @@
 #include <drivers/AdvancedTechnologyAttachment.h>
 #include <gui/Desktop.h>
 #include <gui/Window.h>
+#include <system_calls.h>
 #include <multitasking.h>
 #include <memory_management.h>
 
@@ -92,11 +93,18 @@ void printfHex32(uint32_t key)
     printf(foo);
 }
 
+void sysprintf(char *str)
+{
+    asm("int $0x80"
+        :
+        : "a"(4), "b"(str));
+}
+
 void taskA()
 {
     while (true)
     {
-        printf("A");
+        sysprintf("A");
     }
 }
 
@@ -104,7 +112,7 @@ void taskB()
 {
     while (true)
     {
-        printf("B");
+        sysprintf("B");
     }
 }
 
@@ -211,13 +219,16 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
     printf("\n");
 
     TaskManager task_manager;
-    // Task task1(&gdt, taskA);
-    // Task task2(&gdt, taskB);
+    Task task1(&gdt, taskA);
+    Task task2(&gdt, taskB);
 
-    // task_manager.addTask(&task1);
-    // task_manager.addTask(&task2);
+    task_manager.addTask(&task1);
+    task_manager.addTask(&task2);
 
     InterruptManager interrupt_manager(&gdt, &task_manager);
+
+    SystemCallHandler syscall_handler(&interrupt_manager, (uint8_t)0x80U); // not a hardware interrupt
+
 #ifdef GRAPHICS_MODE
     Desktop desktop(320, 200, 0x00U, 0x00U, 0xA8U);
 #endif
@@ -265,16 +276,16 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
     AdvancedTechnologyAttachment ata0_master(0x1F0U, true);
     printf("ATA Primary Master: ");
     ata0_master.identify();
-    
+
     AdvancedTechnologyAttachment ata0_slave(0x1F0U, false);
     printf("ATA Primary Slave: ");
     ata0_slave.identify();
 
     char *ata_buffer = "###THANKS VIKTOR###";
-    ata0_slave.write28(0, (uint8_t*) ata_buffer, 20);
+    ata0_slave.write28(0, (uint8_t *)ata_buffer, 20);
     ata0_slave.flush();
-    
-    ata0_slave.read28(0, (uint8_t*) ata_buffer, 20);
+
+    ata0_slave.read28(0, (uint8_t *)ata_buffer, 20);
 
     // interrupt 15
     AdvancedTechnologyAttachment ata1_master(0x170U, true);
