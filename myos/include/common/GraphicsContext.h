@@ -3,12 +3,9 @@
 
 #include <drivers/VideoGraphicsArray.h>
 
-namespace myos
+namespace myos::common
 {
-    namespace common
-    {
-        using GraphicsContext = drivers::VideoGraphicsArray;
-    } // namespace common
-} // namespace myos
+    using GraphicsContext = drivers::VideoGraphicsArray;
+} // namespace myos::common
 
 #endif // MYOS_COMMON_GRAPHICSCONTEXT_H

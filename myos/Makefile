@@ -1,8 +1,15 @@
-GPPPARAMS = -m32 -Iinclude -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -Wno-write-strings
-ASPARAMS = --32
-LDPARAMS = -melf_i386
+# Bootloader won't set the stack pointer. C++ programs expect SP to be set before they start running.
+# That is why we are going to build mykernel.bin from 2 main files, kernel.cpp and loader.s. File loader.s will just set the 
+# stack pointer. We will work only in 32 bit mode.
+
+# GPPARAMS need to tell compiler that basically we do not have any support from the operatng system, as we are writing it :-fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions
+# -fno-leading-underscore, otherwise it would need to be _kernelMain
+GPPPARAMS = -m32 -Iinclude -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore
+ASPARAMS = --32 # 32 bit
+LDPARAMS = -melf_i386 #
 
 objects = obj/loader.o \
+          obj/common/print_to_console.o \
 		  obj/GlobalDescriptorTable.o \
 		  obj/memory_management.o \
 		  obj/hardware_communication/Port.o \

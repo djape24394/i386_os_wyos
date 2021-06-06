@@ -1,11 +1,9 @@
 #include <hardware_communication/InterruptManager.h>
+#include <common/print_to_console.h>
 
 using namespace myos;
 using namespace myos::common;
 using namespace myos::hardware_communication;
-
-void printf(char *str);
-void printfHex(uint8_t key);
 
 InterruptManager::GateDescriptor InterruptManager::interruptDescriptorTable[256];
 

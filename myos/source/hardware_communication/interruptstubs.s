@@ -42,6 +42,7 @@ HandleInterruptRequest 0x31
 HandleInterruptRequest 0x80
 
 
+# Useful link for assembly function calls: https://www.cs.princeton.edu/courses/archive/spring11/cos217/lectures/15AssemblyFunctions.pdf
 int_bottom:
 
     # pusha # save all registers before the cpp function call
@@ -81,7 +82,8 @@ int_bottom:
     # popa
 
     add $4, %esp
-
+    # there is no return statement so we go to iret below
+    
 .global _ZN4myos22hardware_communication16InterruptManager22ignoreInterruptRequestEv
 _ZN4myos22hardware_communication16InterruptManager22ignoreInterruptRequestEv:
 

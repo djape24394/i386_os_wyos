@@ -1,4 +1,5 @@
 #include <common/types.h>
+#include <common/print_to_console.h>
 #include <GlobalDescriptorTable.h>
 #include <hardware_communication/InterruptManager.h>
 #include <hardware_communication/pci.h>
@@ -21,79 +22,7 @@ using namespace myos::hardware_communication;
 using namespace myos::drivers;
 using namespace myos::gui;
 
-void printf(char *str)
-{
-    // TODO: refactor this later, no magic numbers
-    static uint16_t *VideoMemory = (uint16_t *)0xb8000;
-    // y is a row, x is a column, the screen size is 25x80
-    static uint8_t x = 0U, y = 0U;
-    for (int i = 0; str[i] != '\0'; ++i)
-    {
-        if (str[i] == '\n')
-        {
-            x = 0U;
-            y++;
-        }
-        else
-        {
-            // every other byte is filled, that why we use this uint16_t
-            VideoMemory[y * 80 + x] = (VideoMemory[y * 80 + x] & 0xFF00) | str[i];
-            x++;
-        }
-
-        if (x >= 80)
-        {
-            y++;
-            x = 0U;
-        }
-
-        if (y >= 25)
-        {
-            for (int i = 0; i < 25; i++)
-                for (int j = 0; j < 80; j++)
-                    VideoMemory[i * 80 + j] = (VideoMemory[i * 80 + j] & 0xFF00) | ' ';
-            x = 0U;
-            y = 0U;
-        }
-    }
-}
-
-void printfHex(uint8_t key)
-{
-    char *foo = "0x00";
-    char *hex = "0123456789ABCDEF";
-    foo[2] = hex[(key >> 4) & 0xF];
-    foo[3] = hex[key & 0xF];
-    printf(foo);
-}
-
-void printfHex16(uint16_t key)
-{
-    char *foo = "0x0000";
-    char *hex = "0123456789ABCDEF";
-    foo[2] = hex[(key >> 12) & 0xF];
-    foo[3] = hex[(key >> 8) & 0xF];
-    foo[4] = hex[(key >> 4) & 0xF];
-    foo[5] = hex[key & 0xF];
-    printf(foo);
-}
-
-void printfHex32(uint32_t key)
-{
-    char *foo = "0x00000000";
-    char *hex = "0123456789ABCDEF";
-    foo[2] = hex[(key >> 28) & 0xF];
-    foo[3] = hex[(key >> 24) & 0xF];
-    foo[4] = hex[(key >> 20) & 0xF];
-    foo[5] = hex[(key >> 16) & 0xF];
-    foo[6] = hex[(key >> 12) & 0xF];
-    foo[7] = hex[(key >> 8) & 0xF];
-    foo[8] = hex[(key >> 4) & 0xF];
-    foo[9] = hex[key & 0xF];
-    printf(foo);
-}
-
-void sysprintf(char *str)
+void sysprintf(const char *str)
 {
     asm("int $0x80"
         :
@@ -116,7 +45,14 @@ void taskB()
     }
 }
 
-typedef void (*constructor)();
+
+/**
+ * The next couple of lines are necessary to initialize class objects with static duration.
+ * As those objects are initilized at the beginning of the program, there must be some mechanism for this.
+ * For each object with static duration, constructor type function will be created that will call the constructor of the object.
+ * We invoke those functions in callConstructors function, which is called in loader.s .
+ */
+using constructor = void (*)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
 extern "C" void callConstructors()
@@ -133,7 +69,7 @@ public:
     PrintfKeyboardEventHandler() = default;
     void onKeyDown(char c) override
     {
-        char *foo = " ";
+        char foo[2] = " ";
         foo[0] = c;
         printf(foo);
     }
@@ -219,11 +155,12 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
     printf("\n");
 
     TaskManager task_manager;
-    Task task1(&gdt, taskA);
-    Task task2(&gdt, taskB);
+    // taskA and taskB are now used to test the syscalls
+    // Task task1(&gdt, taskA);
+    // Task task2(&gdt, taskB);
 
-    task_manager.addTask(&task1);
-    task_manager.addTask(&task2);
+    // task_manager.addTask(&task1);
+    // task_manager.addTask(&task2);
 
     InterruptManager interrupt_manager(&gdt, &task_manager);
 
@@ -281,7 +218,7 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnum)
     printf("ATA Primary Slave: ");
     ata0_slave.identify();
 
-    char *ata_buffer = "###THANKS VIKTOR###";
+    char ata_buffer[20] = "###THANKS VIKTOR###";
     ata0_slave.write28(0, (uint8_t *)ata_buffer, 20);
     ata0_slave.flush();
 

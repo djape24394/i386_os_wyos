@@ -1,9 +1,8 @@
 #include <GlobalDescriptorTable.h>
+#include <common/print_to_console.h>
 
 using namespace myos::common;
 using namespace myos;
-
-void printf(char *str);
 
 GlobalDescriptorTable::GlobalDescriptorTable()
     : nullSegmentSelector(0U, 0U, 0U),

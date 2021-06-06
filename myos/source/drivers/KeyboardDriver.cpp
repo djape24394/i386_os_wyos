@@ -1,11 +1,9 @@
 #include <drivers/KeyboardDriver.h>
+#include <common/print_to_console.h>
 
 using namespace myos::drivers;
 using namespace myos::common;
 using namespace myos::hardware_communication;
-
-void printf(char *);
-void printfHex(uint8_t key);
 
 KeyboardEventHandler::KeyboardEventHandler()
 {

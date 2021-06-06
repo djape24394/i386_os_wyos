@@ -1,10 +1,9 @@
 #include <system_calls.h>
+#include <common/print_to_console.h>
 
 using namespace myos;
 using namespace myos::common;
 using namespace myos::hardware_communication;
-
-void printf(char *);
 
 SystemCallHandler::SystemCallHandler(InterruptManager *interrupt_manager, uint8_t interrupt_number)
     : InterruptHandler(interrupt_number + 0x20U, interrupt_manager)

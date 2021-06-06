@@ -1,11 +1,10 @@
 #include <drivers/AdvancedTechnologyAttachment.h>
+#include <common/print_to_console.h>
 
 using namespace myos;
 using namespace myos::common;
 using namespace myos::drivers;
 using namespace myos::hardware_communication;
-
-void printf(char *);
 
 AdvancedTechnologyAttachment::AdvancedTechnologyAttachment(uint16_t port_base, bool master)
     : data_port(port_base),
@@ -65,7 +64,7 @@ void AdvancedTechnologyAttachment::identify()
     for(uint16_t i = 0U; i < 256U; i++)
     {
         uint16_t data = data_port.read();
-        char *foo = "  \0";
+        char foo[3] = "  ";
         foo[1] = (data >> 8) & 0x00FFU;
         foo[0] = data & 0x00FFU;
         printf(foo);
@@ -108,7 +107,7 @@ void AdvancedTechnologyAttachment::read28(uint32_t sector, uint8_t *data, int co
     for(uint16_t i = 0U; i < count; i += 2)
     {
         uint16_t wdata = data_port.read();
-        char *foo = "  \0";
+        char foo[3] = "  ";
         foo[1] = (wdata >> 8) & 0x00FFU;
         foo[0] = wdata & 0x00FFU;
         printf(foo);
@@ -145,7 +144,7 @@ void AdvancedTechnologyAttachment::write28(uint32_t sector, uint8_t *data, int c
     {
         uint16_t wdata = data[i];
         if(i + 1 < count) wdata |= ((uint16_t)data[i + 1]) << 8U;
-        char *foo = "  \0";
+        char foo[3] = "  ";
         foo[1] = (wdata >> 8) & 0x00FFU;
         foo[0] = wdata & 0x00FFU;
         printf(foo);

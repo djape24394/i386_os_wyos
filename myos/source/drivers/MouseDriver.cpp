@@ -1,10 +1,9 @@
 #include <drivers/MouseDriver.h>
+#include <common/print_to_console.h>
 
 using namespace myos::drivers;
 using namespace myos::common;
 using namespace myos::hardware_communication;
-
-void printf(char *);
 
 MouseEventHandler::MouseEventHandler()
 {}

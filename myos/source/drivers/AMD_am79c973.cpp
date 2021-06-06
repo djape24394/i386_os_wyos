@@ -1,12 +1,10 @@
 #include <drivers/AMD_am79c973.h>
+#include <common/print_to_console.h>
 
 using namespace myos;
 using namespace myos::common;
 using namespace myos::drivers;
 using namespace myos::hardware_communication;
-
-void printf(char *);
-void printfHex(uint8_t key);
 
 AMD_am79c973::AMD_am79c973(PeripheralComponentInterconnectDeviceDescriptor *pci_descriptor, InterruptManager *interrupt_manager)
     : Driver(),

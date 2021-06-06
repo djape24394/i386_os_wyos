@@ -5,8 +5,7 @@
 
 namespace myos
 {
-
-    /**
+        /**
          *Global descriptor table 
          *https://en.wikipedia.org/wiki/Global_Descriptor_Table
          *https://wiki.osdev.org/GDT_Tutorial

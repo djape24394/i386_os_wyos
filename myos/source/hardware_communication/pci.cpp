@@ -1,15 +1,12 @@
 #include <hardware_communication/pci.h>
 #include <memory_management.h>
 #include <drivers/AMD_am79c973.h>
+#include <common/print_to_console.h>
 
 using namespace myos;
 using namespace myos::common;
 using namespace myos::hardware_communication;
 using namespace myos::drivers;
-
-void printf(char *);
-void printfHex(uint8_t key);
-void printfHex16(uint16_t key);
 
 PeripheralComponentInterconnectController::PeripheralComponentInterconnectController()
     : data_port(0xCFC),

@@ -3,33 +3,30 @@
 
 #include <common/types.h>
 
-namespace myos
+namespace myos::drivers
 {
-    namespace drivers
+    class Driver
     {
-        class Driver
-        {
-        public:
-            Driver();
-            ~Driver();
-            virtual void activate();
-            virtual int reset();
-            virtual void deactivate();
-        };
+    public:
+        Driver();
+        ~Driver();
+        virtual void activate();
+        virtual int reset();
+        virtual void deactivate();
+    };
 
-        class DriverManager
-        {
-        private:
-            Driver *drivers[256];
-            myos::common::int32_t nof_drivers{0};
+    class DriverManager
+    {
+    private:
+        Driver *drivers[256];
+        myos::common::int32_t nof_drivers{0};
 
-        public:
-            DriverManager();
-            ~DriverManager();
-            void addDriver(Driver *driver);
-            void activateAll();
-        };
-    } // namespace drivers
-} // namespace myos
+    public:
+        DriverManager();
+        ~DriverManager();
+        void addDriver(Driver *driver);
+        void activateAll();
+    };
+} // namespace myos::drivers
 
 #endif // MYOS_DRIVERS_DRIVER_H
