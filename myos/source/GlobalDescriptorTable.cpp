@@ -7,7 +7,7 @@ using namespace myos;
 GlobalDescriptorTable::GlobalDescriptorTable()
     : nullSegmentSelector(0U, 0U, 0U),
       unusedSegmentSelector(0u, 0u, 0u),
-      codeSegmentSelector(0u, 64 * 1024 * 1024, 0x9A), // 64MB and flags, 0x9A taken from the link
+      codeSegmentSelector(0u, 64 * 1024 * 1024, 0x9A), // 64MB and flags, 0x9A taken from the lowlevel eu
       dataSegmentSelector(0u, 64 * 1024 * 1024, 0x92)  // 64MB and flags
 {
     // tell the processor to use this table, processor expects 6 bytes in row, 2 bytes are sizeof table, 4 bytes are address
@@ -39,18 +39,19 @@ uint16_t GlobalDescriptorTable::getCodeSegmentAddressOffset()
 GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base_ptr, uint32_t limit, uint8_t type)
 {
     // [[base_vhi], [flags_limi_hi|flags_limi_lo], [type], [base_lo] ,[base_lo]x2, [limit_lo]x2]
-    // limit use firs 2.5 bytes, rest must be all ones
-    // TODO: refactor this function to use SegmentDescriptor variables as below
     uint8_t *target = (uint8_t *)this;
     // encode limit
     if (limit <= 65536)
     {
+        // 16 bit address space
         target[6] = 0x40;
     }
     else
     {
+        // 32 bit address space, last 12 bits must be all ones, and we only store the higher 20 bits.
         if ((limit & 0xFFF) != 0xFFF)
         {
+            // if they are not all 1, we will decrease the upper 20 bits size by one, so we will loose up to 2^12=4KB 
             limit = (limit >> 12) - 1;
         }
         else
@@ -87,7 +88,7 @@ uint32_t GlobalDescriptorTable::SegmentDescriptor::getLimitSize()
     uint32_t limit = 0u;
     limit |= limit_low_bytes;
     limit |= (((uint32_t)flags_limit) & 0x0F) << 16;
-    if (flags_limit & 0xC0 != 0xC0)
+    if (flags_limit & 0xC0 == 0xC0)
         limit = (limit << 12) | 0xFFF;
     return limit;
 }
