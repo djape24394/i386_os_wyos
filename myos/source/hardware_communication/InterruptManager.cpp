@@ -36,7 +36,7 @@ uint32_t InterruptManager::handleInterruptMember(uint8_t interrupt_number, uint3
         esp = (uint32_t)task_manager->schedule((CPUstate*)esp);
     }
 
-    // if this was hardware interrupt, send the response to pics
+    // if this was hardware interrupt, send the response to pics, we added 0x20 to hardware interrupts, so now they are in the following range:
     if (interrupt_number >= 0x20 && interrupt_number < 0x30)
     {
         // always send respond to master pic, and to slave only if interrupt came from slave(>=0x28)
@@ -84,16 +84,18 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt, TaskManager *task
     setInterruptDescriptorTableEntry(0x80U, codeSegment, &handleInterruptRequest0x80, 0, IDT_INTERRUPT_GATE);
 
 
-    // Before loading Interrupt Descriptor Table, we communicate with master and slave rogrammable interrupt controller
+    // Before loading Interrupt Descriptor Table, we communicate with master and slave programmable interrupt controller
     picMasterCommand.write(0x11);
     picSlaveCommand.write(0x11);
 
-    // when pressing keyboard, we get interrupt 1, but the same number is used internally for exceptions also
-    // we tell the master pic that for every interrupt, just add 0x20(0x20...0x27) to it(same for slave, add 0x28)
+    // when we press the keyboard, we get interrupt number 1, but the CPU uses tha same number internally for exceptions also.
+    // Here we tell the master pic that for every interrupt he gets, just add 0x20 to the interrupt number.
+    // In total there are 8 interrups from PIC master, so now it will give interrupts with numbers 0x20 to 0x27.
+    // Analog for slave PIC, just add 0x28.
     picMasterData.write(0x20);
     picSlaveData.write(0x28);
 
-    // tell master he is a master, and the slave that he is the slave
+    // tell the master he is the master, and the slave that he is the slave
     picMasterData.write(0x04);
     picSlaveData.write(0x02);
 
@@ -135,7 +137,7 @@ void InterruptManager::activate()
         activeInterruptManager->deactivate();
     }
     activeInterruptManager = this;
-    // start interrupts
+    // start interrupts, tell cpu to use before loaded Interrupt Descriptor Table now when we have initialized the hardware.
     asm("sti");
 }
 

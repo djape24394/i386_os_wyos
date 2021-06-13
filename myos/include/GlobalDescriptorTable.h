@@ -10,9 +10,15 @@ namespace myos
          * https://en.wikipedia.org/wiki/Global_Descriptor_Table
          * https://wiki.osdev.org/GDT_Tutorial
          * https://wiki.osdev.org/Global_Descriptor_Table
+         * https://files.osdev.org/mirrors/geezer/os/pm.htm
          */
     class GlobalDescriptorTable
     {
+        struct GlobalDescriptorTablePointer
+        {
+            myos::common::uint16_t size;
+            myos::common::uint32_t base;
+        } __attribute__((packed));
     public:
         /**
          * Nested class for etries, 8 bytes per entry and each entry is organised as below.

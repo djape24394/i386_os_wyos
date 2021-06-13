@@ -10,17 +10,17 @@ GlobalDescriptorTable::GlobalDescriptorTable()
       codeSegmentSelector(0u, 64 * 1024 * 1024, 0x9A), // 64MB and flags, 0x9A taken from the lowlevel eu
       dataSegmentSelector(0u, 64 * 1024 * 1024, 0x92)  // 64MB and flags
 {
-    // tell the processor to use this table, processor expects 6 bytes in row, 2 bytes are sizeof table, 4 bytes are address
-    uint32_t i[2];
-    i[0] = sizeof(GlobalDescriptorTable) << 16; // need to push that to higher 2 bytes, to have 6 bytes in row
-    i[1] = (uint32_t)this;
+    // tell the processor to use GDT, processor expects 6 bytes in row, first 2 bytes are sizeof table, next 4 bytes are address
+    GlobalDescriptorTablePointer gdtp;
+    gdtp.size = sizeof(GlobalDescriptorTable);
+    gdtp.base = (uint32_t)this;
 
     // execute assembler code to tell the processor to use this descriptor table
     // lgdt: "Load Global Descriptor table"
     // https://www.codeproject.com/Articles/15971/Using-Inline-Assembly-in-C-C
     asm volatile("lgdt (%0)"
                  :
-                 : "p"(((uint8_t *)i) + 2));
+                 : "p"(&gdtp));
     printf("Loaded Global Descriptor Table\n");
 }
 

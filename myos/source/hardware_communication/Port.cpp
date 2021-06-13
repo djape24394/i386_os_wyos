@@ -6,6 +6,7 @@ using namespace myos::hardware_communication;
 Port::Port(uint16_t port_number) : port_number(port_number) {}
 
 Port8bit::Port8bit(uint16_t port_number) : Port(port_number) {}
+
 void Port8bit::write(uint8_t data)
 {
     // https://www.codeproject.com/Articles/15971/Using-Inline-Assembly-in-C-C
@@ -28,6 +29,7 @@ Port8bitSlow::Port8bitSlow(uint16_t port_number) : Port8bit(port_number){}
 
 void Port8bitSlow::write(uint8_t data)
 {
+    // jumping a little bit just to make program wait until writing is finished
     asm volatile("outb %0, %1\njmp 1f\n1: jmp 1f\n1:"
                  :
                  : "a"(data), "Nd"(port_number));

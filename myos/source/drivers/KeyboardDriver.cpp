@@ -35,18 +35,20 @@ void KeyboardDriver::activate()
     {
         data_port.read();
     }
-    command_port.write(0xAE); // tells something to keyboard
+    command_port.write(0xAE); // tells the pic to start sending keyboard interrupts
     command_port.write(0x20); // get current state
     uint8_t status =(data_port.read() | 1) & (~0x10);
     command_port.write(0x60); // set state
     data_port.write(status);
-    data_port.write(0xF4); // activate keyboard
+    data_port.write(0xF4); // final keyboard activation
 }
 
 uint32_t KeyboardDriver::handleInterrupt(uint32_t esp)
 {
     // For each click we get two interrupts, one for press and one for release. 
-    // key >= 0x80 is for the release and below for the press
+    // key >= 0x80 is for the release and less is for the press
+    
+    // When we get the keyboard interrupt, before we send the response to the PIC, we must fetch it, otherwise pic will halt.
     uint8_t key = data_port.read();
     static bool shift_pressed = false;
     if(handler == nullptr)

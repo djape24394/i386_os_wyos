@@ -34,9 +34,9 @@ namespace myos::hardware_communication
         struct GateDescriptor
         {
             myos::common::uint16_t handlerAddressLowBits;
-            myos::common::uint16_t gdt_codeSegmentSelector;
+            myos::common::uint16_t gdt_codeSegmentSelector; // offset from the GDT address, GDT address already introduced with lgdt function in GDT constructor
             myos::common::uint8_t reserved;
-            myos::common::uint8_t access;
+            myos::common::uint8_t access; // access rights
             myos::common::uint16_t handlerAddressHighBits;
         } __attribute__((packed));
 
