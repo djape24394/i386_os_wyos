@@ -44,6 +44,7 @@ namespace myos::hardware_communication
 
     /**
          * Class for PCI controller communication
+         * https://wiki.osdev.org/PCI
          * There are up to 8 busses, each bus can have 32 devices with 8 functions
          * So to refer all the way up to the function, we need 3 + 8 + 3 bits
          * 
@@ -52,7 +53,7 @@ namespace myos::hardware_communication
          * uint8_t subclass_id
          * uint16_t vendor_id
          * uint16_t device_id
-         * These fields have some particular memory address offsets, so we also must pass that as an parameter
+         * These fields have some particular memory address offsets in configuration space, so we also must pass that as an parameter
          */
     class PeripheralComponentInterconnectController
     {

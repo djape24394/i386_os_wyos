@@ -54,9 +54,10 @@ void* MemoryManager::malloc(common::size_t size)
         temp->allocated = false;
         temp->prev = result;
         temp->size = result->size - size - sizeof(MemoryChunk);
+        temp->next = result->next;
         if(temp->next != nullptr)
         {
-            temp->next->prev = temp; // TODO: is this dangerous ?
+            temp->next->prev = temp;
         }
 
         result->size = size;
